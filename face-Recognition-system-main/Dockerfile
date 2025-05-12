@@ -13,11 +13,11 @@ RUN apt-get update && apt-get install -y \
     libopenblas-dev \
     liblapack-dev \
     libx11-dev \
-    libgtk-3-dev \          # GTK for any GUI ops (cv2.imshow, etc.)
-    libglib2.0-0 \          # Core GLib library
-    libsm6 \                # X11 session management library
-    libxext6 \              # X11 extensions
-    libxrender1 \           # X rendering
+    libgtk-3-dev \
+    libglib2.0-0 \
+    libsm6 \
+    libxext6 \
+    libxrender1 \
     git \
   && rm -rf /var/lib/apt/lists/*
 
