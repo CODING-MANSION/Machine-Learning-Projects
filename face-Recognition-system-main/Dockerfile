@@ -4,7 +4,7 @@ FROM python:3.10-slim
 # Set working directory
 WORKDIR /app
 
-# Install system dependencies required by dlib and cmake
+# Install system dependencies required by dlib, CMake, and OpenCV at runtime
 RUN apt-get update && apt-get install -y \
     build-essential \
     cmake \
@@ -13,16 +13,25 @@ RUN apt-get update && apt-get install -y \
     libopenblas-dev \
     liblapack-dev \
     libx11-dev \
+    libgtk-3-dev \          # GTK for any GUI ops (cv2.imshow, etc.)
+    libglib2.0-0 \          # Core GLib library
+    libsm6 \                # X11 session management library
+    libxext6 \              # X11 extensions
+    libxrender1 \           # X rendering
     git \
-    && apt-get clean
+  && rm -rf /var/lib/apt/lists/*
 
-# Upgrade pip and install Python dependencies
+# Copy & install Python dependencies
 COPY requirements.txt .
-RUN pip install --upgrade pip && pip install --no-cache-dir -r requirements.txt
+RUN pip install --upgrade pip \
+ && pip install --no-cache-dir -r requirements.txt
 
 # Copy the rest of your code
 COPY . .
 
-# Set the command to run your app
-CMD ["python", "app.py"]
+# Expose the port (Render will set $PORT at runtime)
+ENV PORT=8000
+EXPOSE 8000
 
+# Use Gunicorn for production; bind to all interfaces on $PORT
+CMD ["gunicorn", "app:app", "--bind", "0.0.0.0:$PORT", "--workers", "3"]
